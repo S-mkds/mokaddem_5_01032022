@@ -1,18 +1,13 @@
-function getOrderId() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  return urlParams.get("orderId");
-}
+// Récupération de l'orderId
+const searchParams = new URL(document.location).searchParams;
+const orderId = params.get("orderId");
 
-const orderId = getOrderId();
-displayOrderId(orderId);
-function displayOrderId(orderId) {
-  const orderIdElement = document.getElementById("orderId");
-  orderIdElement.textContent = orderId;
-}
+// Affichage du numéro order dans son élement
+document.getElementById("orderId").textContent = orderId;
 
-function removeAllCache() {
+// Suppression du localStorage
+function deleteLocalStorage() {
   const cache = window.localStorage;
   cache.clear();
 }
-removeAllCache();
+deleteLocalStorage();
