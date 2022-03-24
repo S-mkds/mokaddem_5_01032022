@@ -100,7 +100,7 @@ quantityModify(); // Appel de la fonction
 // Suppression d'un produit
 
 function deleteProduct(i) {
-  //Selection de l'element à supprimer en fonction de son basketId ( random de 0 a 100 000 )
+  // supression d'un article selon la couleur et l'id
   let idDelete = produitLocalStorage[i].productId;
   let colorDelete = produitLocalStorage[i].color;
   produitLocalStorage = produitLocalStorage.filter(
@@ -112,7 +112,7 @@ function deleteProduct(i) {
   location.reload();
 }
 
-//---------------------------end function { price, quantity, delete}--------------------
+//---------------------------end function {price, quantity, delete}--------------------
 
 //---------------------------start function valid order---------------------------------
 //Envoi des informations client au localstorage

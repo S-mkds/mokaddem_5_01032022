@@ -84,7 +84,7 @@ if (btn != null) {
       name: name,
       imageUrl: imageUrl,
       description: description,
-      basketId: Math.floor(Math.random() * 100000),
+      //basketId: Math.floor(Math.random() * 100000),
     }; // Stockage de ces élements dans le local storage
 
     // Annonce message d'erreur si:
