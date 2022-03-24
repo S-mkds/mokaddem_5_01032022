@@ -1,11 +1,13 @@
-// Récupération de l'orderId
-const searchParams = new URL(document.location).searchParams;
-const orderId = params.get("orderId");
+//Récuperation du lien de la barre URL
+let url = new URL(window.location.href);
+//Récuperation de orderId avec searchParams.get
+let orderId = url.searchParams.get("orderId");
 
-// Affichage du numéro order dans son élement
-document.getElementById("orderId").textContent = orderId;
+// j'intègre l'orederId dans le DOM
+let insertOrderId = document.getElementById("orderId");
+insertOrderId.innerHTML = orderId;
 
-// Suppression du localStorage
+// delete du localStorage
 function deleteLocalStorage() {
   const cache = window.localStorage;
   cache.clear();
