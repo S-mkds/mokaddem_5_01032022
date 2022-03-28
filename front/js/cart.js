@@ -7,6 +7,21 @@ const cart = [];
 const item = produitLocalStorage;
 cart.push(item);
 
+for (let i = 0; i < produitLocalStorage.length; i++) {
+  fetch(
+    `http://localhost:3000/api/products/${produitLocalStorage[i].productId}`
+  ) // L'appel de fetch pour chaque item dans le panier
+    .then((response) => response.json())
+    .then((res) => showPrice(res));
+
+  //------------------------
+  // récupération et affichage du prix depuis l'api
+  function showPrice(objectData) {
+    const price = objectData.price;
+    const spanPrice = document.querySelector("#price" + i);
+    spanPrice.textContent = price + " €";
+  }
+}
 //------------------------------------start display cart------------------------------------/
 function displayCart() {
   // Si le panier est vide tu affiche <p>le panier est vide</p>
@@ -31,7 +46,7 @@ function displayCart() {
       <div class="cart__item__content__description">
         <h2>${product.name}</h2>
         <p>${product.color}</p>
-        <p>${product.price}€</p>
+        <p id = "price${i}" ></p>
       </div>
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
@@ -114,6 +129,112 @@ function deleteProduct(i) {
 
 //---------------------------end function {price, quantity, delete}--------------------
 
+//---------------------------Start Function ValidForm-----------------------------------
+function validForm() {
+  let orderbtn = document.getElementById("order"); // Selection du bouton commander afin de pour l'annuler
+  let formChange = document.querySelector(".cart__order__form");
+  formChange.firstName.addEventListener("change", () => {
+    valideFirstNameRegex(this);
+  });
+  formChange.lastName.addEventListener("change", () => {
+    valideLastNameRegex(this);
+  });
+  formChange.address.addEventListener("change", () => {
+    valideAddressRegex(this);
+  });
+  formChange.city.addEventListener("change", () => {
+    valideCityRegex(this);
+  });
+  formChange.email.addEventListener("change", () => {
+    valideEmailRegex(this);
+  });
+
+  // REGEXP FIRSTNAME
+  const valideFirstNameRegex = function () {
+    let firstNameReg = new RegExp("^[A-Z][a-zA-Z -]+$");
+    let firstNameErrMsg =
+      document.getElementById("firstName").nextElementSibling;
+
+    if (firstNameReg.test(formChange.firstName.value)) {
+      firstNameErrMsg.innerHTML = "prénom Valide";
+      firstNameErrMsg.style.color = "#c8f217";
+      orderbtn.disabled = ""; // dans le cas ou le bouton est désactivé, on le réactive
+    } else {
+      firstNameErrMsg.innerHTML = "prénom non Valide";
+      firstNameErrMsg.style.color = "#fbbcbc";
+      orderbtn.disabled = "disabled"; // Si on entre dans le 'else' le bouton commander est désactivé
+    }
+  };
+  // REGEXP LASTNAME
+  const valideLastNameRegex = function () {
+    let lastNameReg = new RegExp("^[A-Z][a-zA-Z -]+$");
+    let lastNameErrMsg = document.getElementById("lastName").nextElementSibling;
+
+    if (lastNameReg.test(formChange.lastName.value)) {
+      lastNameErrMsg.innerHTML = "Nom Valide";
+      lastNameErrMsg.style.color = "#c8f217";
+      orderbtn.disabled = "";
+    } else {
+      lastNameErrMsg.innerHTML = "Nom non Valide";
+      lastNameErrMsg.style.color = "#fbbcbc";
+      orderbtn.disabled = "disabled";
+    }
+  };
+
+  // REGEXP ADDRESS
+  const valideAddressRegex = function () {
+    let addressReg = new RegExp("^[0-9a-zA-Z -,]+$");
+    let addressErrMsg = document.getElementById("address").nextElementSibling;
+
+    if (addressReg.test(formChange.address.value)) {
+      addressErrMsg.innerHTML = "Addresse Valide";
+      addressErrMsg.style.color = "#c8f217";
+      orderbtn.disabled = "";
+    } else {
+      addressErrMsg.innerHTML = "Addresse non Valide";
+      addressErrMsg.style.color = "#fbbcbc";
+      orderbtn.disabled = "disabled";
+    }
+  };
+
+  // REGEXP CITY
+  const valideCityRegex = function () {
+    let cityReg = new RegExp("^[0-9a-zA-Z -,]+$");
+    let cityErrMsg = document.getElementById("city").nextElementSibling;
+
+    if (cityReg.test(formChange.city.value)) {
+      cityErrMsg.innerHTML = "Ville Valide";
+      cityErrMsg.style.color = "#c8f217";
+      orderbtn.disabled = "";
+    } else {
+      cityErrMsg.innerHTML = "Ville non Valide";
+      cityErrMsg.style.color = "#fbbcbc";
+      orderbtn.disabled = "disabled";
+    }
+  };
+
+  // REGEXP EMAIL
+  const valideEmailRegex = function () {
+    let emailRegExp = new RegExp(
+      "^[A-Za-z0-9.A-Za-z0-9-A-Za-z0-9_A-Za-z0-9]+[@]{1}[a-zA-Z0-9.-_]+$"
+    );
+    let emailErrMsg = document.getElementById("email").nextElementSibling;
+
+    if (emailRegExp.test(formChange.email.value)) {
+      emailErrMsg.innerHTML = "Email Valide";
+      emailErrMsg.style.color = "#c8f217";
+      orderbtn.disabled = "";
+    } else {
+      emailErrMsg.innerHTML = "Email non Valide";
+      emailErrMsg.style.color = "#fbbcbc";
+      orderbtn.disabled = "disabled";
+    }
+  };
+}
+
+validForm();
+//---------------------------End Function ValidForm-----------------------------------
+
 //---------------------------start function valid order---------------------------------
 //Envoi des informations client au localstorage
 function validCommand() {
@@ -126,23 +247,16 @@ function validCommand() {
     let lastName = document.getElementById("lastName").value;
     let address = document.getElementById("address").value;
     let city = document.getElementById("city").value;
-    let contactEmail = document.getElementById("email").value;
-    let emailReg = /\S+@\S+\.\S+/;
+    let Email = document.getElementById("email").value;
 
     // Si panier vide => return
     if (produitLocalStorage === null || produitLocalStorage == 0) {
       alert("Veuillez rajouter des articles dans le panier");
       return;
     }
-    // Si email vide et erreur => return
-    if (emailReg.test(contactEmail) == false) {
-      alert("Veuillez entrer un email valide");
-      return;
-    }
-
     // Si fisrtname, lastname, address, city = vide => return
     if (firstName === "" || lastName === "" || address === "" || city === "") {
-      alert("Il y a une erreur dans le champ de formulaire");
+      alert("Le champ de formulaire est vide");
       return;
     }
     // sinon je créé un tableau et j'envoi les données
@@ -153,7 +267,7 @@ function validCommand() {
         lastName: lastName,
         address: address,
         city: city,
-        email: contactEmail,
+        email: Email,
       };
       // boucle du tableau du localStorage afin de récupérer les id et les intégrer dans mon tableau productOrder
       let productOrder = [];
