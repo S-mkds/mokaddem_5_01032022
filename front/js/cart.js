@@ -7,21 +7,18 @@ const cart = [];
 const item = produitLocalStorage;
 cart.push(item);
 
-for (let i = 0; i < produitLocalStorage.length; i++) {
-  fetch(
-    `http://localhost:3000/api/products/${produitLocalStorage[i].productId}`
-  ) // L'appel de fetch pour chaque item dans le panier
-    .then((response) => response.json())
-    .then((res) => showPrice(res));
-
-  //------------------------
-  // récupération et affichage du prix depuis l'api
-  function showPrice(objectData) {
-    const price = objectData.price;
-    const spanPrice = document.querySelector("#price" + i);
-    spanPrice.textContent = price + " €";
+async function updatePrice() {
+  for (let i = 0; i < produitLocalStorage.length; i++) {
+    await fetch(
+      `http://localhost:3000/api/products/${produitLocalStorage[i].productId}`
+    ) // L'appel de fetch pour chaque item dans le panier
+      .then((response) => response.json())
+      .then((res) => {
+        produitLocalStorage[i].price = res.price;
+      });
   }
 }
+updatePrice();
 //------------------------------------start display cart------------------------------------/
 function displayCart() {
   // Si le panier est vide tu affiche <p>le panier est vide</p>
@@ -46,15 +43,15 @@ function displayCart() {
       <div class="cart__item__content__description">
         <h2>${product.name}</h2>
         <p>${product.color}</p>
-        <p id = "price${i}" ></p>
+        <p>${product.price}</p>
       </div>
       <div class="cart__item__content__settings">
         <div class="cart__item__content__settings__quantity">
           <p>Quantité : </p>
-          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${product.quantity}>
+          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.quantity}" oninput="quantityModify(${i}, this)">
         </div>
         <div class="cart__item__content__settings__delete">
-          <p class="deleteItem" onclick = "deleteProduct(${i})">Supprimer</p>
+          <p class="deleteItem" onclick="deleteProduct(${i})">Supprimer</p>
         </div>
       </div>
     </div>
@@ -73,44 +70,26 @@ function totalProduct() {
   // Récupération du total des quantités
   let elemsQtt = document.getElementsByClassName("itemQuantity");
   let myLength = elemsQtt.length,
-    totalQtt = 0;
+    totalQtt = 0,
+    totalPrice = 0;
 
   for (var i = 0; i < myLength; ++i) {
     totalQtt += elemsQtt[i].valueAsNumber;
+    totalPrice += elemsQtt[i].valueAsNumber * produitLocalStorage[i].price;
   }
   let productTotalQuantity = document.getElementById("totalQuantity");
   productTotalQuantity.innerHTML = totalQtt;
-  // Récupération du prix total
-  totalPrice = 0;
-  for (var i = 0; i < myLength; ++i) {
-    totalPrice += elemsQtt[i].valueAsNumber * produitLocalStorage[i].price;
-  }
   let productTotalPrice = document.getElementById("totalPrice");
   productTotalPrice.innerHTML = totalPrice;
 }
-totalProduct(); // Appel de la fonction
+totalProduct();
 
 // Modification d'une quantité de produit
-function quantityModify() {
-  let qttModif = document.querySelectorAll(".itemQuantity");
-
-  for (let k = 0; k < qttModif.length; k++) {
-    qttModif[k].addEventListener("change", (event) => {
-      event.preventDefault();
-      //Selection de l'element à modifier en fonction de son id ET sa couleur
-      let quantityModif = produitLocalStorage[k].quantity;
-      let qttModifValue = qttModif[k].valueAsNumber;
-      const resultFind = produitLocalStorage.find(
-        (el) => el.qttModifValue !== quantityModif
-      );
-      resultFind.quantity = qttModifValue;
-      produitLocalStorage[k].quantity = resultFind.quantity;
-      localStorage.setItem("storage", JSON.stringify(produitLocalStorage));
-      location.reload();
-    });
-  }
+function quantityModify(i, input) {
+  produitLocalStorage[i].quantity = parseInt(input.value);
+  localStorage.setItem("storage", JSON.stringify(produitLocalStorage));
+  totalProduct();
 }
-quantityModify(); // Appel de la fonction
 
 // Suppression d'un produit
 
@@ -133,19 +112,19 @@ function deleteProduct(i) {
 function validForm() {
   let orderbtn = document.getElementById("order"); // Selection du bouton commander afin de pour l'annuler
   let formChange = document.querySelector(".cart__order__form");
-  formChange.firstName.addEventListener("change", () => {
+  formChange.firstName.addEventListener("input", () => {
     valideFirstNameRegex(this);
   });
-  formChange.lastName.addEventListener("change", () => {
+  formChange.lastName.addEventListener("input", () => {
     valideLastNameRegex(this);
   });
-  formChange.address.addEventListener("change", () => {
+  formChange.address.addEventListener("input", () => {
     valideAddressRegex(this);
   });
-  formChange.city.addEventListener("change", () => {
+  formChange.city.addEventListener("input", () => {
     valideCityRegex(this);
   });
-  formChange.email.addEventListener("change", () => {
+  formChange.email.addEventListener("input", () => {
     valideEmailRegex(this);
   });
 
